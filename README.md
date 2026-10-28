@@ -1,71 +1,44 @@
 # Electronics Module CAD / 电子模块建模
 
-A reusable agent Skill for making true-size electronics module models from product links. Built for enclosure and assembly work, with **research and reuse first**.
-通过商品链接还原电子模块、单片机开发板或芯片封装，服务外壳与装配设计；核心是先查资料、优先复用。
+A portable agent Skill for product-link research and board CAD for enclosure design. It searches **3D source → PCB layout → other dimensions**, reuses verified work and records only gaps on resume. 商品链接即可开始，先复用，后补缺。
 
-## What it does / 核心功能
+All mounted parts on both sides must be covered, each with size and placement evidence. Models keep one connected solid per board file and one independent `PinMap` sketch. Save nominal first; apply **0.2 mm per side with Offset Face last** in a separate clearance copy. 全部元件、单实体、引脚编号与最后偏移面要求不因节省时间而降低。
 
-1. **Use a supplied model:** check the part, revision, units, and known size, then adopt it.
-   **有模型直接用：**核对对应型号、版本、单位与尺寸，匹配后不重复建模。
-2. **Use stated dimensions:** read the listing, drawings, and attachments before estimating or searching.
-   **有尺寸直接用：**先采用商品页、图纸和附件中的数据，不用照片估算覆盖。
-3. **Search only for gaps:** look for an exact maker model, then missing dimensions in official drawings, datasheets, and reliable same-version sources.
-   **只补查缺项：**按准确型号查厂家模型，再查缺失的机械尺寸；资料来源与版本要记录。
-4. **Ask for key measurements:** if needed geometry is still unknown or conflicting, request specific measurements with clear endpoints.
-   **缺关键尺寸再问：**说明测量位置与两端，不编造孔距或接口高度。
+## Use / 使用
 
-## Clearance / 装配间隙
-
-The real-size model stays unchanged. A separate keep-out model adds **0.2 mm on each side** of the outer fit surfaces. It is assembly clearance, not `±0.2 mm` manufacturing tolerance.
-保留真实尺寸，另建每侧 **0.2 mm** 避让体；这不是制造公差。已添加过的间隙不能重复叠加。
-
-| Feature / 特征 | Real size / 真实尺寸 | Clearance / 避让尺寸 |
-| --- | --- | --- |
-| Rectangular body / 长方体 | 20 × 30 × 1.6 mm | 20.4 × 30.4 × 2.0 mm |
-| Round port / 圆柱接口 | Ø6 mm | Ø6.4 mm |
-| Mounting hole in nominal model / 真实模型安装孔 | Ø2.2 mm | Nominal hole stays Ø2.2 mm / 原孔径不变 |
-
-Do not scale the whole model. Hole centers stay fixed; screw and mounting-boss fit is a separate interface. The whole module envelope includes components and protruding pins, not just PCB thickness.
-不能整体缩放；孔中心不变，螺钉与安装柱配合单独处理。整板避让要包括元件和突出针脚，不能只计算 PCB 厚度。
-
-## Use and install / 使用与安装
-
-Use an agent that supports `SKILL.md`. Put this repository folder in that agent's skill directory, named `electronics-module-cad`, or use its skill installer with this repository URL. In Codex, the usual user location is `~/.codex/skills/electronics-module-cad/`; a custom configuration may use another location.
-使用支持 `SKILL.md` 的助手，把本仓库目录放进它的 Skill 目录，或用安装器读取本仓库链接；目录名称保留 `electronics-module-cad`。不需要本作者电脑上的路径。
-
-Invoke it with a product link, for example:
-调用时提供商品链接即可，例如：
+Put this folder in your agent's supported Skill location, for example `~/.codex/skills/electronics-module-cad`, or use the host's GitHub Skill installer with this repository. Keep `SKILL.md`, `agents`, `references` and `scripts` together. No required CAD app, MCP connection, database or Python package. Python 3 is needed only for the optional checker.
+将仓库作为一个 Skill 文件夹使用；不强制下载任何 CAD，也不自动安装工具。
 
 ```text
-Use $electronics-module-cad to model the board at this product link for a case:
-[product link]
-请优先采用页面模型与尺寸，并另建每侧 0.2 mm 的装配避让体。
+Use $electronics-module-cad with [product link]. Research only for now.
+先查完整建模资料，保留来源和缺项，暂不建模。
 ```
 
-No particular CAD app is required by the Skill. It uses the user's chosen or available capable tool. Official connections are optional; the Skill does not install apps or connectors on its own. Actual verified model delivery still requires an executable CAD tool.
-不绑定 Fusion、FreeCAD 或其他特定软件；优先用户选择或现有可用工具，官方连接可选，不自行安装。真正生成并验证 CAD 模型仍需要可运行的工具。
+For modeling, state the chosen tool if any. The Skill uses an available capable tool; if none can run, any agreed-tool script is explicitly unexecuted. Actual delivery includes native nominal/clearance files, STEP where supported, component/pin/source notes and multi-view previews; checks require reopening and measuring real files. STEP may not retain sketch text. 实物试装需另行验证。
 
-If no CAD tool can execute, the agent may offer an agreed-tool script or measurement notes, clearly marked **not executed / not verified**.
-没有可执行 CAD 时，可提供已确定目标工具的脚本或测量说明，必须明确“未执行 / 未验证”，不能声称模型已完成。
+## Faster research / 更快查证
 
-## Delivery / 交付内容
+- Screen identity and previews before large downloads; inspect promising files in two passes. 先筛版本，再深度解析。
+- Read saved `research.md` on resume; search missing facts rather than repeating answered questions. 续查只读摘要与相关表格。
+- Reuse identical file extraction by hash and parsing conditions; share exact package dimensions while retaining each placement. 同封装复用尺寸，每个实例独立。
+- Stop after two rounds with no new valid evidence and no concrete unchecked lead. New useful evidence resumes the search. 不无限换通用板查找。
+- Load research/CAD references only when needed; keep raw files local and tool replies short. 按需加载，报告只讲增量。
 
-- Adopted original or editable native model, plus a separate clearance model.
-  采用的原模型或可编辑工程，以及独立避让模型。
-- Separate nominal and clearance STEP exports where the tool supports them.
-  软件支持时，分别导出真实模型与避让模型 STEP。
-- Source/dimension notes and top, bottom, side, and isometric previews.
-  资料尺寸说明，以及顶、底、侧、轴测预览。
+Task data uses `research.md`, `sources.csv`, `packages.csv`, `components.csv` and `pins.csv`. Headers, statuses and evidence rules are in [research workflow](references/research.md). Existing reports stay in place; no automatic migration or global cache.
 
-The agent must reopen exports, measure geometry, and inspect previews before reporting those checks as passed. Physical fit remains a separate test. Commercial product files are not bundled or automatically published with this Skill.
-导出要重开测量，预览要实际查看；软件验证不能代替实物试装。商品模型与图片不随本 Skill 自动上传或再发布。
+```sh
+python scripts/check_research.py /path/to/task
+python scripts/check_research.py /path/to/task --details
+python -m unittest discover -s tests -p 'test_*.py'
+```
 
-## Files and checks / 文件与检查
+The checker is read-only and uses the Python standard library. A clean result means table checks passed, **not complete product evidence or CAD verification**. Unknown values remain recorded; they must not be removed just to pass. 检查器不能证明没有漏件、来源匹配或模型能装配。
 
-- [SKILL.md](SKILL.md): the research, modeling, clearance, and delivery workflow / 核心流程。
-- [CAD tools](references/cad-tools.md): optional tool and export guidance / 可选工具参考。
-- [Behavior scenarios](tests/scenarios.md): repeatable acceptance cases / 行为验收用例。
-- [Evaluation](tests/evaluation.md): observed instruction checks and limits / 实际检查结果与边界。
+## Files and limits / 文件与边界
 
-The repository has no required runtime package or fixed CAD connection. Behavior scenarios test the instructions; they do not prove any CAD file or physical part fits.
-仓库没有强制运行依赖或固定 CAD 连接；行为用例验证的是流程说明，不代表已完成某款商品的 CAD 或实物验证。
+- [SKILL.md](SKILL.md): core decisions and modeling contract / 核心流程。
+- [Research](references/research.md): screening, tables, reuse and stop rules / 查证细则。
+- [CAD tools](references/cad-tools.md): optional tools, transforms and export checks / 建模阶段参考。
+- [Scenarios](tests/scenarios.md) and [evaluation](tests/evaluation.md): behavioral cases, dated results and limits / 验收与历史。
+
+No measured live Token or speed gain is promised. Instruction text and controlled local checks can be compared; real research depends on accessible sources. Commercial models, screenshots and local project records are not bundled or automatically published. 不足的资料仍须标记不足，不用相似商品代替。
