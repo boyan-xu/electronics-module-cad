@@ -1,6 +1,6 @@
 interface:
   display_name: "Module CAD / 模块建模"
-  short_description: "Reuse module CAD with 0.2 mm gaps / 复用模型并加装配间隙"
-  default_prompt: "Use $electronics-module-cad with this product link: reuse a matching model or stated sizes, research missing data, and make a separate 0.2 mm-per-side clearance model. 按链接还原模块，保留真实尺寸并另建避让体。"
+  short_description: "Single-solid module CAD + pin map / 单实体模块与引脚图"
+  default_prompt: "Use $electronics-module-cad for this product link: resume saved research, verify 3D → PCB → missing dimensions, then model when authorized with all parts, one solid, PinMap and final 0.2 mm-per-side face offset. 先查证复用，再建模；只查资料时不操作 CAD。"
 policy:
   allow_implicit_invocation: true
